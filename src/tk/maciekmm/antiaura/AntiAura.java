@@ -24,15 +24,20 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.google.common.collect.ImmutableList;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
+
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,6 +47,8 @@ import org.bukkit.util.Vector;
 
 
 public class AntiAura extends JavaPlugin implements Listener {
+	static File AuraKick = new File("./plugins/AntiAura", "AuraKick.yml");
+    public static FileConfiguration aurakick = YamlConfiguration.loadConfiguration(AuraKick);
     private HashMap<UUID, AuraCheck> running = new HashMap<>();
     public static ImmutableList<Vector> POSITIONS;
     public int autoBanCount;
@@ -56,8 +63,7 @@ public class AntiAura extends JavaPlugin implements Listener {
         autoBanCount = this.getConfig().getInt("autoBanOnXPlayers");
         silentKick = this.getConfig().getBoolean("silentKick");
         runEvery = this.getConfig().getInt("runEvery");
-        this.getServer().getPluginManager().registerEvents(this, this);
-        
+        this.getServer().getPluginManager().registerEvents(this, this);   
         if(this.getConfig().getBoolean("randomlyRun")) {
             Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
                 @Override
@@ -150,6 +156,15 @@ public class AntiAura extends JavaPlugin implements Listener {
                    // Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "ANTI-AURA: Hit ban limit", null, "AntiAura-AutoBan");;
                     if(silentKick) {
                         player.kickPlayer("ANTI-AURA: Hit limit reached");
+                        aurakick.set(player.getName(), 1+1);
+                        try
+				        {
+				          aurakick.save(AuraKick);
+				        }
+				        catch (IOException e)
+				        {
+				          e.printStackTrace();
+				        }
                     }
                 }
             }
