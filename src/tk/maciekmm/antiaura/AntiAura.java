@@ -152,11 +152,13 @@ public class AntiAura extends JavaPlugin implements Listener {
                 invoker.sendMessage(ChatColor.DARK_PURPLE + "Aura check on " + player.getName() + " result: killed " + result.getKey() + " out of " + result.getValue());
                 double timeTaken = finished != Long.MAX_VALUE ? (int) ((finished - started) / 1000) : ((double) getConfig().getInt("ticksToKill", 10) / 20);
                 invoker.sendMessage(ChatColor.DARK_PURPLE + "Check length: " + timeTaken + " seconds.");
+                int count = aurakick.getInt(player.getName());
                 if(result.getKey() >= autoBanCount) {
                    // Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "ANTI-AURA: Hit ban limit", null, "AntiAura-AutoBan");;
                     if(silentKick) {
-                        player.kickPlayer("ANTI-AURA: You have been kicked for using Aura, Remove your cheating tool. Your kick has been recorded.");
-                        aurakick.set(player.getName(), 1+1);
+                    	Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.WHITE + player.getName() + ChatColor.DARK_RED + " Has been kicked by AntiAura");
+                        player.kickPlayer(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.RED + " You have been kicked for using Aura. Remove your cheating tool! Your kick has been recorded.");
+                        aurakick.set(player.getName(), 1+count);
                         try
 				        {
 				          aurakick.save(AuraKick);
