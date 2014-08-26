@@ -1,9 +1,8 @@
-name: ${project.name}
-version: ${project.version}
-description: ${project.description}
+name: AntiAura
+version: 0.3
+description: Checks for Aura
 author: maciekmm
-website: ${project.url}
-main: ${main.class}
+main: tk.maciekmm.antiaura.AntiAura
 depend: [ProtocolLib]
 commands:
   auracheck:
