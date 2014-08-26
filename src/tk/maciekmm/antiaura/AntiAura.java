@@ -155,7 +155,7 @@ public class AntiAura extends JavaPlugin implements Listener {
                 if(result.getKey() >= autoBanCount) {
                    // Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "ANTI-AURA: Hit ban limit", null, "AntiAura-AutoBan");;
                     if(silentKick) {
-                        player.kickPlayer("ANTI-AURA: Hit limit reached");
+                        player.kickPlayer("ANTI-AURA: You have been kicked for using Aura, Remove your cheating tool. Your kick has been recorded.");
                         aurakick.set(player.getName(), 1+1);
                         try
 				        {
