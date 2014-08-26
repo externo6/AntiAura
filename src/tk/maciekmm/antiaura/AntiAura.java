@@ -23,6 +23,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.google.common.collect.ImmutableList;
+
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Random;
@@ -45,7 +46,7 @@ public class AntiAura extends JavaPlugin implements Listener {
     public static ImmutableList<Vector> POSITIONS;
     public int autoBanCount;
     private boolean isRegistered;
-    private boolean silentBan;
+    private boolean silentKick;
     private int runEvery;
     public static final Random RANDOM = new Random();
 
@@ -53,7 +54,7 @@ public class AntiAura extends JavaPlugin implements Listener {
         this.saveDefaultConfig();
         POSITIONS = getPositionsForAmount(this.getConfig().getInt("amountOfFakePlayers"));
         autoBanCount = this.getConfig().getInt("autoBanOnXPlayers");
-        silentBan = this.getConfig().getBoolean("silentBan");
+        silentKick = this.getConfig().getBoolean("silentKick");
         runEvery = this.getConfig().getInt("runEvery");
         this.getServer().getPluginManager().registerEvents(this, this);
         
@@ -146,8 +147,8 @@ public class AntiAura extends JavaPlugin implements Listener {
                 double timeTaken = finished != Long.MAX_VALUE ? (int) ((finished - started) / 1000) : ((double) getConfig().getInt("ticksToKill", 10) / 20);
                 invoker.sendMessage(ChatColor.DARK_PURPLE + "Check length: " + timeTaken + " seconds.");
                 if(result.getKey() >= autoBanCount) {
-                    Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "ANTI-AURA: Hit ban limit", null, "AntiAura-AutoBan");
-                    if(!silentBan) {
+                   // Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "ANTI-AURA: Hit ban limit", null, "AntiAura-AutoBan");;
+                    if(silentKick) {
                         player.kickPlayer("ANTI-AURA: Hit limit reached");
                     }
                 }

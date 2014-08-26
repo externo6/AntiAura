@@ -2,6 +2,6 @@ ticksToKill: 10
 amountOfFakePlayers: 4
 invisibility: false
 autoBanOnXPlayers: 3
-silentBan: true
+silentKick: false
 randomlyRun: true
 runEvery: 2400
