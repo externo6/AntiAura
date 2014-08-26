@@ -149,9 +149,9 @@ public class AntiAura extends JavaPlugin implements Listener {
                 if (invoker instanceof Player && !((Player) invoker).isOnline()) {
                     return;
                 }
-                invoker.sendMessage(ChatColor.DARK_PURPLE + "Aura check on " + player.getName() + " result: killed " + result.getKey() + " out of " + result.getValue());
                 double timeTaken = finished != Long.MAX_VALUE ? (int) ((finished - started) / 1000) : ((double) getConfig().getInt("ticksToKill", 10) / 20);
-                invoker.sendMessage(ChatColor.DARK_PURPLE + "Check length: " + timeTaken + " seconds.");
+                invoker.sendMessage(ChatColor.DARK_PURPLE + "Aura check on " + player.getName() + " result: killed " + result.getKey() + " out of " + result.getValue() + " in " + timeTaken + " Seconds");
+               // invoker.sendMessage(ChatColor.DARK_PURPLE + "Check length: " + timeTaken + " seconds.");
                 if(result.getKey() >= autoBanCount) {
                 	int count = aurakick.getInt(player.getName());
                 	Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.WHITE + player.getName() + ChatColor.DARK_RED + " Has been kicked by AntiAura");
