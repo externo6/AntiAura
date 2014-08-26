@@ -22,7 +22,6 @@ import com.comphenix.packetwrapper.WrapperPlayClientUseEntity;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import com.google.common.collect.ImmutableList;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,27 +42,32 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
 
 public class AntiAura extends JavaPlugin implements Listener {
 	static File AuraKick = new File("./plugins/AntiAura", "AuraKick.yml");
     public static FileConfiguration aurakick = YamlConfiguration.loadConfiguration(AuraKick);
     private HashMap<UUID, AuraCheck> running = new HashMap<>();
-    public static ImmutableList<Vector> POSITIONS;
-    public int autoBanCount;
+    public static int total;
+    private static int autoBanCount;
     private boolean isRegistered;
-    private boolean silentKick;
-    private int runEvery;
+    private static int runEvery;
+    private String typeCmd;
+    private String type;
     public static final Random RANDOM = new Random();
 
     public void onEnable() {
         this.saveDefaultConfig();
-        POSITIONS = getPositionsForAmount(this.getConfig().getInt("amountOfFakePlayers"));
-        autoBanCount = this.getConfig().getInt("autoBanOnXPlayers");
-        silentKick = this.getConfig().getBoolean("silentKick");
-        runEvery = this.getConfig().getInt("runEvery");
-        this.getServer().getPluginManager().registerEvents(this, this);   
+        total = this.getConfig().getInt("amountOfFakePlayers", 16);
+        autoBanCount = this.getConfig().getInt("autoBanOnXPlayers", 3);
+        runEvery = this.getConfig().getInt("runEvery", 2400);
+        type = this.getConfig().getString("defaultType", "running");
+        this.getServer().getPluginManager().registerEvents(this, this);
+        
+        if(type.equalsIgnoreCase("running") || type.equalsIgnoreCase("standing")) {
+        } else {
+            type = "running";
+        }
         if(this.getConfig().getBoolean("randomlyRun")) {
             Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
                 @Override
@@ -75,20 +79,6 @@ public class AntiAura extends JavaPlugin implements Listener {
                 }
             }, 800L, runEvery);
         }
-    }
-
-    public ImmutableList<Vector> getPositionsForAmount(int total) {
-        ImmutableList.Builder<Vector> pos_temp = new ImmutableList.Builder<>();
-        double per90deg = total / 4;
-        double result = per90deg / (per90deg + 1);
-        double currentX = 0;
-        double currentY = 1;
-        for (int i = 0; i <= per90deg; i++) {
-            currentX += result;
-            currentY -= result;
-            pos_temp.add(new Vector(currentX,(double)0,currentY));
-        }
-        return pos_temp.build();
     }
 
     public void register() {
@@ -139,11 +129,21 @@ public class AntiAura extends JavaPlugin implements Listener {
         if (!isRegistered) {
             this.register();
         }
+        
+        if(args.length == 2) {
+            if(args[1].equalsIgnoreCase("standing") || args[1].equalsIgnoreCase("running")) {
+                typeCmd = args[1];
+            } else {
+                typeCmd = type;
+            }
+        } else {
+            typeCmd = type;
+        }
 
         AuraCheck check = new AuraCheck(this, player);
         running.put(player.getUniqueId(), check);
 
-        check.invoke(sender, new AuraCheck.Callback() {
+        check.invoke(sender, typeCmd, new AuraCheck.Callback() {
             @Override
             public void done(long started, long finished, AbstractMap.SimpleEntry<Integer, Integer> result, CommandSender invoker, Player player) {
                 if (invoker instanceof Player && !((Player) invoker).isOnline()) {
@@ -152,22 +152,19 @@ public class AntiAura extends JavaPlugin implements Listener {
                 invoker.sendMessage(ChatColor.DARK_PURPLE + "Aura check on " + player.getName() + " result: killed " + result.getKey() + " out of " + result.getValue());
                 double timeTaken = finished != Long.MAX_VALUE ? (int) ((finished - started) / 1000) : ((double) getConfig().getInt("ticksToKill", 10) / 20);
                 invoker.sendMessage(ChatColor.DARK_PURPLE + "Check length: " + timeTaken + " seconds.");
-                int count = aurakick.getInt(player.getName());
                 if(result.getKey() >= autoBanCount) {
-                   // Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "ANTI-AURA: Hit ban limit", null, "AntiAura-AutoBan");;
-                    if(silentKick) {
-                    	Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.WHITE + player.getName() + ChatColor.DARK_RED + " Has been kicked by AntiAura");
-                        player.kickPlayer(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.RED + " You have been kicked for using Aura. Remove your cheating tool! Your kick has been recorded.");
-                        aurakick.set(player.getName(), 1+count);
-                        try
-				        {
-				          aurakick.save(AuraKick);
-				        }
-				        catch (IOException e)
-				        {
-				          e.printStackTrace();
-				        }
-                    }
+                	int count = aurakick.getInt(player.getName());
+                	Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.WHITE + player.getName() + ChatColor.DARK_RED + " Has been kicked by AntiAura");
+                    player.kickPlayer(ChatColor.DARK_RED + "ANTI-AURA:" + ChatColor.RED + " You have been kicked for using Aura. Remove your cheating tool! Your kick has been recorded.");
+                    aurakick.set(player.getName(), 1+count);
+                    try
+			        {
+			          aurakick.save(AuraKick);
+			        }
+			        catch (IOException e)
+			        {
+			          e.printStackTrace();
+			        }
                 }
             }
         });
