@@ -1,5 +1,5 @@
 name: AntiAura
-version: 0.3
+version: ${project.version}
 description: Checks for Aura
 author: maciekmm
 main: tk.maciekmm.antiaura.AntiAura
